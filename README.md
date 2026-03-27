@@ -29,6 +29,31 @@ dotnet tool install -g NSwag.ConsoleCore
 
 ## Getting Started
 
+### Step 0 — Decide which test projects you need
+
+| Project | When to use |
+|---|---|
+| `Tests.E2E` | You want browser-level tests (Playwright) |
+| `Tests.Api` | You want fast in-process API tests (no running server) |
+| `Tests.Api.Live` | You want API tests against a live running server |
+
+Remove any projects you don't need. For example, to drop the live API tests:
+
+```bash
+dotnet sln remove Tests.Api.Live
+rm -rf Tests.Api.Live
+```
+
+Run the compatibility script at any time to verify your environment and catch missing configuration:
+
+```powershell
+.\Check-Compatibility.ps1
+```
+
+When run interactively the script will also print the exact removal commands for whichever project you choose not to use.
+
+---
+
 ### Step 1 — Configure credentials and URLs
 
 **E2E tests** — edit `Tests.E2E/testsettings.json`:
@@ -65,6 +90,8 @@ dotnet tool install -g NSwag.ConsoleCore
 
 Local overrides (never committed) go in `testsettings.local.json` / `apitestsettings.local.json`. All values can also be set via environment variables — see [Environment Variables](#environment-variables).
 
+---
+
 ### Step 2 — Implement login for E2E tests
 
 Open `Tests.E2E/Fixtures/AppPageTestBase.cs` and adapt `LoginAsync`. The default posts to a JWT login endpoint and injects the token into `localStorage`:
@@ -87,6 +114,8 @@ protected override async Task LoginAsync(TestUserSettings user)
 }
 ```
 
+---
+
 ### Step 3 — Implement login for live API tests
 
 Open `Tests.Api.Live/Fixtures/AppLiveApiTestBase.cs` and adapt `LoginAsync`. It returns the bearer token string rather than driving a browser:
@@ -105,9 +134,21 @@ protected override async Task<string> LoginAsync(TestUserSettings user)
 }
 ```
 
+---
+
 ### Step 4 — Wire up the in-process API factory
 
-Open `Tests.Api/Fixtures/ApiFactory.cs` and replace the generic type argument with your API's `Program` class, then swap the database in `ConfigureWebHost`:
+`Tests.Api` runs your API in-process using `WebApplicationFactory`. Three things need to be wired up:
+
+**4a — Add a project reference** in `Tests.Api/Tests.Api.csproj`:
+
+```xml
+<ItemGroup>
+  <ProjectReference Include="..\path\to\YourApi\YourApi.csproj" />
+</ItemGroup>
+```
+
+**4b — Set the entry point** in `Tests.Api/Fixtures/ApiFactory.cs` — replace `YourApi.Program` with your API's `Program` class:
 
 ```csharp
 public class ApiFactory : WebApplicationFactory<YourApi.Program>
@@ -127,6 +168,15 @@ public class ApiFactory : WebApplicationFactory<YourApi.Program>
     }
 }
 ```
+
+**4c — Adapt the auth setup** in `Tests.Api/Fixtures/ApiTestBase.cs`. Update the test credentials and adapt the register/login endpoint paths and response shape to match your API:
+
+```csharp
+protected const string TestEmail    = "test@example.com";
+protected const string TestPassword = "Pa$$w0rd";
+```
+
+The `InitializeAsync` method registers and logs in the test user before each test, then injects the token into the `Auth` client. Adapt the endpoint paths (`/api/account/register`, `/api/account/login`) and the JSON property name (`"token"`) to match your API.
 
 ---
 
@@ -437,7 +487,7 @@ public class MyVisualTests : AppPageTestBase, IClassFixture<VisualTestContext>
 
 ## Compatibility Check
 
-Verifies your environment and project configuration before running tests:
+Before running tests, verify your environment and configuration:
 
 ```powershell
 .\Check-Compatibility.ps1
@@ -449,7 +499,7 @@ Verifies your environment and project configuration before running tests:
 | `-ApiUrl <url>` | Probe a live API endpoint as part of the check |
 | `-Detailed` | Show extra detail for each check |
 
-When run interactively (not in CI), the script first asks whether you intend to use `Tests.Api` (in-process), `Tests.Api.Live` (live server), or both — and prints the exact commands to remove whichever project you don't need. This prompt is automatically skipped when `CI`, `GITHUB_ACTIONS`, or `TF_BUILD` environment variables are set.
+When run interactively (not in CI), the script asks whether you intend to use `Tests.Api` (in-process), `Tests.Api.Live` (live server), or both — and prints the exact `dotnet sln remove` commands for whichever project you don't need. This prompt is automatically skipped when `CI`, `GITHUB_ACTIONS`, or `TF_BUILD` environment variables are set.
 
 Checks include: .NET 8 SDK, Node.js 18+, NSwag CLI, Playwright Chromium, solution structure, `.editorconfig`, `.gitignore` completeness, NuGet package versions, Swagger/NSwag config, `testsettings.json` and `apitestsettings.json` pool completeness, and visual baseline counts.
 

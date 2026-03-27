@@ -20,8 +20,7 @@
   <ItemGroup>
     <!-- Shared typed API client (NSwag-generated) and builder/mother utilities -->
     <ProjectReference Include="..\src\PlugIn.Automate.Client\PlugIn.Automate.Client.csproj" />
-    <!-- Temporary test target; swap this for your own API project reference -->
-    <ProjectReference Include="..\TestApp\TestApp.csproj" />
+    <!-- Add a ProjectReference to your own API project here -->
   </ItemGroup>
 
   <ItemGroup>
