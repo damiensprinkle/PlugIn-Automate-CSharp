@@ -1,0 +1,38 @@
+{
+  "runtime": "Net80",
+  "defaultVariables": null,
+  "documentGenerator": {
+    "fromDocument": {
+      "json": "",
+      "url": "swagger.json",
+      "output": null
+    }
+  },
+  "codeGenerators": {
+    "openApiToCSharpClient": {
+      "generateClientClasses": true,
+      "generateClientInterfaces": true,
+      "injectHttpClient": true,
+      "disposeHttpClient": true,
+      "generateExceptionClasses": true,
+      "exceptionClass": "ApiException",
+      "wrapDtoExceptions": true,
+      "useBaseUrl": true,
+      "generateBaseUrlProperty": true,
+      "generateSyncMethods": false,
+      "clientClassAccessModifier": "public",
+      "typeAccessModifier": "public",
+      "parameterDateTimeFormat": "s",
+      "parameterDateFormat": "yyyy-MM-dd",
+      "className": "{controller}Client",
+      "operationGenerationMode": "SingleClientFromOperationId",
+      "classStyle": "Poco",
+      "jsonLibrary": "SystemTextJson",
+      "generateDefaultValues": true,
+      "generateDataAnnotations": true,
+      "generateDtoTypes": true,
+      "namespace": "PlugIn.Automate.Client",
+      "output": "Client/ApiClient.g.cs"
+    }
+  }
+}

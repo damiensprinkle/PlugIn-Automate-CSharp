@@ -1,0 +1,22 @@
+## .NET
+bin/
+obj/
+*.user
+
+## Test output
+TestResults/
+**/traces/
+**/VisualResults/
+
+## Local settings overrides (credentials / local URLs)
+**/testsettings.local.json
+**/apitestsettings.local.json
+
+## IDE
+.vs/
+.vscode/
+*.DotSettings.user
+
+## OS
+.DS_Store
+Thumbs.db

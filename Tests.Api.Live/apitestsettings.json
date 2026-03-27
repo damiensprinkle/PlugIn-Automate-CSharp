@@ -1,0 +1,13 @@
+{
+  "BaseUrl": "http://localhost:5000",
+  "Pools": {
+    "Pool1": {
+      "SysAdmin":     { "Email": "admin@example.com",  "Password": "admin123", "Username": "admin",  "DisplayName": "Admin User"      },
+      "StandardUser": { "Email": "user@example.com",   "Password": "user123",  "Username": "user1",  "DisplayName": "Standard User"   }
+    },
+    "Pool2": {
+      "SysAdmin":     { "Email": "admin2@example.com", "Password": "admin123", "Username": "admin2", "DisplayName": "Admin User 2"    },
+      "StandardUser": { "Email": "user2@example.com",  "Password": "user123",  "Username": "user2",  "DisplayName": "Standard User 2" }
+    }
+  }
+}
